@@ -212,6 +212,14 @@ export default function Home() {
     let nextObstacle = 680;
     let obstacles: { x: number; y: number; w: number; h: number; type: "cone" | "books" | "bird" }[] = [];
     let particles: { x: number; y: number; vx: number; life: number }[] = [];
+    const scenery = {
+      building: new Image(),
+      grass: new Image(),
+      road: new Image(),
+    };
+    scenery.building.src = "/scenarios/predio-unc.png";
+    scenery.grass.src = "/scenarios/grama.png";
+    scenery.road.src = "/scenarios/estrada.png";
 
     const resetRound = () => {
       distance = 0;
@@ -241,47 +249,33 @@ export default function Home() {
         ctx.fill();
       }
 
-      const bx = 500 - (distance * 0.04) % 1500;
-      ctx.fillStyle = "#b95a43";
-      ctx.fillRect(bx, 222, 520, 170);
-      ctx.fillStyle = "#f5d7a3";
-      ctx.fillRect(bx + 20, 242, 480, 150);
-      ctx.fillStyle = "#224a46";
-      for (let row = 0; row < 2; row++) for (let col = 0; col < 7; col++) {
-        ctx.fillRect(bx + 48 + col * 63, 270 + row * 54, 32, 30);
+      if (scenery.building.complete && scenery.building.naturalWidth) {
+        const buildingCycle = 1720;
+        for (let i = 0; i < 2; i++) {
+          const bx = ((i * buildingCycle + 420 - distance * 0.055) % (buildingCycle * 2) + buildingCycle * 2) % (buildingCycle * 2) - 820;
+          ctx.drawImage(scenery.building, 55, 175, 1405, 705, bx, 112, 800, 401);
+        }
       }
-      ctx.fillStyle = "#183b38";
-      ctx.fillRect(bx + 230, 318, 64, 74);
-      ctx.fillStyle = "#fff6db";
-      ctx.font = "800 20px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText("UNC", bx + 260, 214);
 
-      ctx.fillStyle = "#6aa767";
-      ctx.fillRect(0, 392, GAME_WIDTH, 55);
-      for (let i = 0; i < 10; i++) {
-        const x = ((i * 145 - distance * 0.18) % 1450 + 1450) % 1450;
-        ctx.fillStyle = "#326c58";
-        ctx.fillRect(x, 332, 10, 72);
-        ctx.beginPath();
-        ctx.arc(x + 5, 320, 35, 0, Math.PI * 2);
-        ctx.fill();
+      ctx.fillStyle = "#78b968";
+      ctx.fillRect(0, 366, GAME_WIDTH, 82);
+      if (scenery.grass.complete && scenery.grass.naturalWidth) {
+        const grassWidth = 760;
+        const grassOffset = (distance * 0.25) % grassWidth;
+        for (let i = -1; i < 3; i++) {
+          ctx.drawImage(scenery.grass, 55, 395, 1420, 295, i * grassWidth - grassOffset, 332, grassWidth, 158);
+        }
       }
-      ctx.fillStyle = "#d7a35d";
-      ctx.fillRect(0, GROUND_Y, GAME_WIDTH, GAME_HEIGHT - GROUND_Y);
-      ctx.fillStyle = "rgba(115,72,34,.22)";
-      for (let i = 0; i < 18; i++) {
-        const x = ((i * 90 - distance) % 1700 + 1700) % 1700;
-        ctx.fillRect(x, 488 + (i % 3) * 18, 38, 4);
-      }
-      ctx.fillStyle = "rgba(255,255,255,.75)";
-      ctx.fillRect(0, GROUND_Y + 8, GAME_WIDTH, 5);
 
-      ctx.fillStyle = "#173d39";
-      ctx.font = "800 14px Arial";
-      ctx.textAlign = "left";
-      ctx.fillText("BLOCO A", 50 - (distance * .12) % 1500, 374);
-      ctx.fillText("BIBLIOTECA", 980 - (distance * .12) % 1500, 374);
+      ctx.fillStyle = "#645b63";
+      ctx.fillRect(0, GROUND_Y - 6, GAME_WIDTH, GAME_HEIGHT - GROUND_Y + 6);
+      if (scenery.road.complete && scenery.road.naturalWidth) {
+        const roadWidth = 1100;
+        const roadOffset = distance % roadWidth;
+        for (let i = -1; i < 2; i++) {
+          ctx.drawImage(scenery.road, 14, 404, 1508, 282, i * roadWidth - roadOffset, GROUND_Y - 18, roadWidth, 206);
+        }
+      }
     };
 
     const drawPlayer = (t: number) => {
