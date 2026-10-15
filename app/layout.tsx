@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Corrida para a Aula | UNC em Movimento",
-  description: "Um jogo universitário controlado pelos movimentos do seu corpo.",
+  description: "Um jogo da UNC com fases que os alunos podem editar em HTML, CSS e JavaScript.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173d39">
+  <title>Corrida para a Aula — UNC em Movimento</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="./estilo.css?v=alunos-1">
+  <script type="module" src="./jogo.js?v=alunos-1"></script>
+</head>
+<body>
+  <header class="topo">
+    <a class="marca" href="/" aria-label="Corrida para a Aula"><span class="marca-simbolo">U</span><span>UNC <small>EM MOVIMENTO</small></span></a>
+    <span class="selo">CORRIDA PARA A AULA</span>
+  </header>
+
+  <main class="pagina">
+    <section class="cabecalho-jogo" aria-label="Informações da partida">
+      <div>
+        <p class="sobretitulo" id="nome-fase">FASE 1 · CAMPUS UNC</p>
+        <h1 id="titulo-fase">Corrida para a aula!</h1>
+      </div>
+      <div class="placar">
+        <div><small>TEMPO</small><strong id="tempo">90</strong></div>
+        <div><small>PONTOS</small><strong id="pontos">0000</strong></div>
+        <div><small>RECORDE</small><strong id="recorde">0000</strong></div>
+      </div>
+    </section>
+
+    <section class="palco" aria-label="Área do jogo">
+      <canvas id="jogo" width="1100" height="560" aria-label="Corrida para a aula: pule ou agache para desviar dos obstáculos"></canvas>
+
+      <div class="cartao" id="tela-inicial">
+        <span class="etiqueta">PREPARE-SE</span>
+        <h2>Chegue na aula<br><em>sem perder a chamada!</em></h2>
+        <p>Complete todas as fases. Pule os obstáculos no chão e agache para escapar dos que voam.</p>
+        <p class="teclas"><span>↑ ou ESPAÇO <b>PULAR</b></span><span>↓ <b>AGACHAR</b></span></p>
+        <button class="botao-principal" id="iniciar">COMEÇAR CORRIDA →</button>
+        <button class="botao-secundario" id="ativar-camera">◎ ATIVAR CÂMERA (OPCIONAL)</button>
+        <p class="aviso-camera" id="aviso-camera" role="status"></p>
+      </div>
+
+      <div class="tela-contagem escondido" id="tela-contagem" aria-live="polite"><strong id="numero-contagem">3</strong><span>PREPARE O CORPO</span></div>
+      <div class="tela-fase escondido" id="tela-fase" aria-live="polite"><small>NOVA FASE</small><strong id="fase-anuncio"></strong><span id="fase-mensagem"></span></div>
+      <div class="cartao escondido" id="tela-final">
+        <span class="etiqueta" id="resultado-etiqueta">FIM DA CORRIDA</span>
+        <h2 id="resultado-titulo">Boa corrida!</h2>
+        <p id="resultado-texto"></p>
+        <button class="botao-principal" id="reiniciar">JOGAR DE NOVO ↻</button>
+      </div>
+
+      <div class="camera" id="painel-camera" hidden>
+        <div class="camera-imagem"><video id="video-camera" muted playsinline></video><canvas id="desenho-pose" width="320" height="240" aria-hidden="true"></canvas></div>
+        <span id="estado-camera">INICIANDO CÂMERA</span>
+      </div>
+      <div class="ferramentas"><button id="ligar-camera">◎ CÂMERA</button><button id="recalibrar" hidden>◎ RECALIBRAR</button><button id="parar-camera" hidden>PARAR CÂMERA</button><button id="tela-cheia">⛶ TELA CHEIA</button></div>
+    </section>
+
+    <div class="instrucoes">
+      <div><span>01</span><p><b>ESCOLHA O CONTROLE</b><small>Teclado ou câmera; a câmera é opcional.</small></p></div>
+      <div><span>02</span><p><b>DESVIE DOS OBSTÁCULOS</b><small>↑ pula, ↓ agacha. Com câmera, use o corpo.</small></p></div>
+      <div><span>03</span><p><b>CRIE SUAS FASES</b><small>Edite o arquivo fases.js e adicione imagens.</small></p></div>
+    </div>
+  </main>
+
+  <footer><span>A imagem da câmera é processada no seu navegador.</span><strong>R RECALIBRA · F TELA CHEIA</strong></footer>
+</body>
+</html>
