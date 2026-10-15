@@ -36,6 +36,28 @@ Se `npm run dev` disser que a porta 3000 já está em uso, encerre o outro servi
 | `public/jogo/jogo.js` | Motor do jogo; não precisa mudar para criar fases. |
 | `public/jogo/camera.js` | Controle opcional por movimento. |
 
+## Imagens disponíveis para novas fases
+
+Estas imagens já estão no projeto para os alunos usarem quando criarem fases. Os três cenários são fundos completos de **2172 × 724 pixels**. Os sete objetos são PNGs de **1254 × 1254 pixels** com transparência; ajuste `largura` e `altura` no `fases.js` para exibi-los no tamanho adequado ao jogo.
+
+| Cenário | Caminho para usar em `fases.js` |
+| --- | --- |
+| Sala de aula | `/scenarios/ensino-tecnico/sala-de-aula.png` |
+| Laboratório de elétrica | `/scenarios/ensino-tecnico/laboratorio-eletrica.png` |
+| Oficina mecânica | `/scenarios/ensino-tecnico/oficina-mecanica.png` |
+
+| Objeto | Caminho para usar em `fases.js` |
+| --- | --- |
+| Engrenagem | `/obstaculos/ensino-tecnico/engrenagem.png` |
+| Morsa | `/obstaculos/ensino-tecnico/morsa.png` |
+| Chave de fenda | `/obstaculos/ensino-tecnico/chave-de-fenda.png` |
+| Raio elétrico | `/obstaculos/ensino-tecnico/raio-eletrico.png` |
+| Painel elétrico | `/obstaculos/ensino-tecnico/painel-eletrico.png` |
+| Braço robótico | `/obstaculos/ensino-tecnico/braco-robotico.png` |
+| Carteira escolar | `/obstaculos/ensino-tecnico/carteira-escolar.png` |
+
+Exemplo: `imagem: "/scenarios/ensino-tecnico/sala-de-aula.png"` em uma camada, ou `{ imagem: "/obstaculos/ensino-tecnico/engrenagem.png", acao: "pular", largura: 55, altura: 55 }` em `obstaculos`.
+
 ## Criar uma fase
 
 1. Coloque as imagens do cenário em `public/scenarios/`. Pode usar um fundo completo e outros PNGs transparentes para árvores, prédios, chão e decoração. O palco mede **1100 × 560 pixels** e o personagem pisa em **y = 446**.
