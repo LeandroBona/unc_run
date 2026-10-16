@@ -6,7 +6,13 @@ import { fileURLToPath } from "node:url";
 
 // Servidor simples para alunos: lê os arquivos a cada acesso, sem build nem cache.
 const pastaPublica = resolve(fileURLToPath(new URL("../public/", import.meta.url)));
-const porta = Number(process.env.PORT || 3000);
+const portaInicial = Number(process.env.PORT || 3000);
+if (!Number.isInteger(portaInicial) || portaInicial < 1 || portaInicial > 65535) {
+  process.stderr.write("PORT precisa ser um número entre 1 e 65535.\n");
+  process.exit(1);
+}
+const portaMaxima = process.env.PORT ? portaInicial : Math.min(portaInicial + 10, 65535);
+let porta = portaInicial;
 const tipos = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -54,7 +60,23 @@ const servidor = createServer(async (requisicao, resposta) => {
   }
 });
 
-servidor.listen(porta, "127.0.0.1", () => {
+servidor.on("error", (erro) => {
+  if (erro.code === "EADDRINUSE" && porta < portaMaxima) {
+    porta += 1;
+    servidor.listen(porta, "127.0.0.1");
+    return;
+  }
+  if (erro.code === "EADDRINUSE") {
+    process.stderr.write(`A porta ${porta} está ocupada. Encerre o outro servidor ou escolha outra porta com PORT=3001 npm run dev.\n`);
+  } else {
+    process.stderr.write(`Não foi possível iniciar o servidor: ${erro.message}\n`);
+  }
+  process.exitCode = 1;
+});
+
+servidor.on("listening", () => {
   process.stdout.write(`Jogo aberto em http://localhost:${porta}\n`);
   process.stdout.write("Salve os arquivos e atualize a página para ver as mudanças.\n");
 });
+
+servidor.listen(porta, "127.0.0.1");

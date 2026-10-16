@@ -6,7 +6,7 @@ const canvas = document.querySelector("#jogo");
 const ctx = canvas.getContext("2d");
 const LARGURA = canvas.width;
 const ALTURA = canvas.height;
-const CHAO = 446;
+const CHAO_PADRAO = 446;
 const VELOCIDADE = 7.2;
 const GRAVIDADE = 0.9;
 const DURACAO_TOTAL = fases.reduce((soma, fase) => soma + fase.duracao, 0);
@@ -24,7 +24,9 @@ const elementos = {
 const imagens = new Map();
 for (const fase of fases) {
   const caminhos = [
+    fase.cenario?.imagemFundo,
     ...(fase.cenario?.camadas || []).map((camada) => camada.imagem),
+    ...(fase.cenario?.camadasSobreFundo || []).map((camada) => camada.imagem),
     ...fase.obstaculos.map((obstaculo) => obstaculo.imagem),
   ];
   for (const caminho of caminhos) {
@@ -45,6 +47,10 @@ const chaveRecorde = "corrida-campus-recorde";
 let recorde = lerNumero(chaveRecorde);
 let modo = "inicio";
 let faseAtual = 0;
+function chaoDaFase() {
+  const chao = fases[faseAtual]?.cenario?.chao;
+  return Number.isFinite(chao) ? chao : CHAO_PADRAO;
+}
 let tempoDaFase = 0;
 let tempoDaPartida = 0;
 let distancia = 0;
@@ -58,7 +64,7 @@ let comandoPulo = false;
 let teclaAgachar = false;
 let cameraAgachar = false;
 let cameraAtiva = null;
-let jogador = { y: CHAO - 66, velocidadeY: 0, agachado: false };
+let jogador = { y: chaoDaFase() - 66, velocidadeY: 0, agachado: false };
 
 function mostrar(elemento, sim) { elemento.classList.toggle("escondido", !sim); }
 function textoPlacar() {
@@ -80,7 +86,7 @@ function novoJogo() {
   pontos = 0;
   proximoObstaculo = 760;
   obstaculos = [];
-  jogador = { y: CHAO - 66, velocidadeY: 0, agachado: false };
+  jogador = { y: chaoDaFase() - 66, velocidadeY: 0, agachado: false };
   comandoPulo = false;
   teclaAgachar = false;
   cameraAgachar = false;
@@ -121,7 +127,7 @@ function mudarFase(agora) {
   tempoDaFase = 0;
   obstaculos = [];
   proximoObstaculo = 820;
-  jogador.y = CHAO - 66;
+  jogador.y = chaoDaFase() - 66;
   jogador.velocidadeY = 0;
   atualizarCabecalho();
   elementos.anuncio.textContent = fases[faseAtual].nome;
@@ -139,7 +145,7 @@ function criarObstaculo() {
   const largura = modelo.largura || 52;
   obstaculos.push({
     x: LARGURA + 20,
-    y: CHAO - altura - (modelo.alturaDoChao || 0),
+    y: chaoDaFase() - altura - (modelo.alturaDoChao || 0),
     largura, altura,
     imagem: modelo.imagem,
     imagemY: modelo.imagemY || 0,
@@ -170,9 +176,10 @@ function atualizar(delta, agora) {
   textoPlacar();
   if (tempoDaFase >= fases[faseAtual].duracao * 1000) { mudarFase(agora); return; }
 
-  const noChao = jogador.y >= CHAO - (jogador.agachado ? 42 : 66) - 1;
+  const chao = chaoDaFase();
+  const noChao = jogador.y >= chao - (jogador.agachado ? 42 : 66) - 1;
   jogador.agachado = (teclaAgachar || cameraAgachar) && noChao;
-  if (jogador.agachado && jogador.velocidadeY === 0) jogador.y = CHAO - 42;
+  if (jogador.agachado && jogador.velocidadeY === 0) jogador.y = chao - 42;
   if (comandoPulo && noChao) {
     jogador.velocidadeY = -15.8;
     jogador.agachado = false;
@@ -180,7 +187,7 @@ function atualizar(delta, agora) {
   comandoPulo = false;
   jogador.velocidadeY += GRAVIDADE * passo;
   jogador.y += jogador.velocidadeY * passo;
-  const piso = CHAO - (jogador.agachado ? 42 : 66);
+  const piso = chao - (jogador.agachado ? 42 : 66);
   if (jogador.y > piso) { jogador.y = piso; jogador.velocidadeY = 0; }
 
   proximoObstaculo -= movimento;
@@ -237,7 +244,27 @@ function desenharCamada(camada) {
 
 function desenharFundo(fase) {
   const cenario = fase.cenario || {};
-  if (cenario.ceu?.length >= 2) {
+  if (cenario.imagemFundo) {
+    // A imagem principal ocupa o palco todo e substitui céu e nuvens.
+    ctx.fillStyle = cenario.corFundo || "#dff5ef";
+    ctx.fillRect(0, 0, LARGURA, ALTURA);
+    const imagem = imagens.get(cenario.imagemFundo);
+    if (imagem?.complete && imagem.naturalWidth) {
+      if (cenario.ajusteFundo === "esticar") {
+        ctx.drawImage(imagem, 0, 0, LARGURA, ALTURA);
+      } else {
+        // "cobrir": mantém a proporção e recorta o excesso pelas bordas.
+        const escala = Math.max(LARGURA / imagem.naturalWidth, ALTURA / imagem.naturalHeight);
+        const larguraRecorte = LARGURA / escala;
+        const alturaRecorte = ALTURA / escala;
+        ctx.drawImage(imagem,
+          (imagem.naturalWidth - larguraRecorte) / 2,
+          (imagem.naturalHeight - alturaRecorte) / 2,
+          larguraRecorte, alturaRecorte,
+          0, 0, LARGURA, ALTURA);
+      }
+    }
+  } else if (cenario.ceu?.length >= 2) {
     const ceu = ctx.createLinearGradient(0, 0, 0, ALTURA);
     for (let i = 0; i < cenario.ceu.length; i++) {
       const posicao = cenario.ceu.length === 3 && i === 1 ? .65 : i / (cenario.ceu.length - 1);
@@ -247,8 +274,8 @@ function desenharFundo(fase) {
   } else {
     ctx.fillStyle = cenario.corFundo || "#dff5ef";
   }
-  ctx.fillRect(0, 0, LARGURA, ALTURA);
-  if (cenario.nuvens) {
+  if (!cenario.imagemFundo) ctx.fillRect(0, 0, LARGURA, ALTURA);
+  if (!cenario.imagemFundo && cenario.nuvens) {
     ctx.fillStyle = "rgba(255,255,255,.72)";
     for (let i = 0; i < 4; i++) {
       const x = ((i * 330 - distancia * .08) % 1400 + 1400) % 1400 - 120;
@@ -257,7 +284,9 @@ function desenharFundo(fase) {
       ctx.arc(x + 88, 98 + (i % 2) * 42, 32, 0, Math.PI * 2); ctx.fill();
     }
   }
-  for (const camada of cenario.camadas || []) desenharCamada(camada);
+  // Uma imagem de fundo troca o cenário antigo. Só camadasSobreFundo é desenhada por cima dela.
+  const camadas = cenario.imagemFundo ? cenario.camadasSobreFundo : cenario.camadas;
+  for (const camada of camadas || []) desenharCamada(camada);
   if (cenario.vinheta) {
     const vinheta = ctx.createRadialGradient(550, 270, 180, 550, 270, 650);
     vinheta.addColorStop(0, "rgba(255,205,112,0)");
@@ -271,7 +300,7 @@ function desenharJogador(agora) {
   const x = 149;
   const y = jogador.y + (modo === "jogando" && jogador.velocidadeY === 0 ? Math.sin(agora * .018) * 2 : 0);
   ctx.fillStyle = "#172c2a50";
-  ctx.beginPath(); ctx.ellipse(x + 21, CHAO + 5, 30, 7, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + 21, chaoDaFase() + 5, 30, 7, 0, 0, Math.PI * 2); ctx.fill();
   if (agachado) {
     ctx.fillStyle = "#ee5d3e"; ctx.fillRect(x, y + 20, 48, 24);
     ctx.fillStyle = "#f3b57e"; ctx.beginPath(); ctx.arc(x + 45, y + 15, 14, 0, Math.PI * 2); ctx.fill();

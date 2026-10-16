@@ -30,13 +30,15 @@ test("o jogo usa HTML, CSS e JS sem página de versão separada", async () => {
 test("as fases usam camadas editáveis e obstáculos PNG existentes", async () => {
   assert.ok(fases.length >= 2);
   for (const fase of fases) {
-    assert.ok(fase.cenario.camadas.length > 0);
-    assert.ok(fase.cenario.camadas.some((camada) => camada.imagem));
-    for (const camada of fase.cenario.camadas) {
+    const camadas = fase.cenario.imagemFundo
+      ? fase.cenario.camadasSobreFundo || []
+      : fase.cenario.camadas || [];
+    assert.ok(fase.cenario.imagemFundo || camadas.length > 0);
+    for (const camada of camadas) {
       assert.ok(camada.imagem || camada.cor);
       assert.ok(camada.largura > 0 && camada.altura > 0);
     }
-    const caminhos = [...fase.cenario.camadas.map((camada) => camada.imagem),
+    const caminhos = [fase.cenario.imagemFundo, ...camadas.map((camada) => camada.imagem),
       ...fase.obstaculos.map((obstaculo) => obstaculo.imagem)].filter(Boolean);
     for (const caminho of caminhos) await access(new URL(`public${caminho}`, raiz));
     for (const obstaculo of fase.obstaculos) {
