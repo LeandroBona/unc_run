@@ -302,15 +302,15 @@ function desenharJogador(agora) {
   ctx.fillStyle = "#172c2a50";
   ctx.beginPath(); ctx.ellipse(x + 21, chaoDaFase() + 5, 30, 7, 0, 0, Math.PI * 2); ctx.fill();
   if (agachado) {
-    ctx.fillStyle = "#ee5d3e"; ctx.fillRect(x, y + 20, 48, 24);
+    ctx.fillStyle = "#3eeedf"; ctx.fillRect(x, y + 20, 48, 24);
     ctx.fillStyle = "#f3b57e"; ctx.beginPath(); ctx.arc(x + 45, y + 15, 14, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "#173d39"; ctx.fillRect(x + 35, y + 3, 22, 7); ctx.fillRect(x + 2, y + 40, 17, 6); ctx.fillRect(x + 34, y + 40, 18, 6);
+    ctx.fillStyle = "#f0d126"; ctx.fillRect(x + 35, y + 3, 22, 7); ctx.fillRect(x + 2, y + 40, 17, 6); ctx.fillRect(x + 34, y + 40, 18, 6);
   } else {
-    ctx.fillStyle = "#173d39"; ctx.fillRect(x + 5, y + 48, 9, 20); ctx.fillRect(x + 27, y + 48, 9, 20);
-    ctx.fillStyle = "#ee5d3e"; ctx.fillRect(x + 5, y + 27, 31, 30);
+    ctx.fillStyle = "#d4d4c3"; ctx.fillRect(x + 5, y + 48, 9, 20); ctx.fillRect(x + 27, y + 48, 9, 20);
+    ctx.fillStyle = "#3eeedf"; ctx.fillRect(x + 5, y + 27, 31, 30);
     ctx.fillStyle = "#fff8e7"; ctx.fillRect(x + 17, y + 28, 7, 19);
     ctx.fillStyle = "#f3b57e"; ctx.beginPath(); ctx.arc(x + 20, y + 15, 14, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "#173d39"; ctx.beginPath(); ctx.arc(x + 18, y + 9, 15, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = "#f0d126"; ctx.beginPath(); ctx.arc(x + 20, y + 9, 15, Math.PI, 0); ctx.fill();
     ctx.fillStyle = "#f3b57e"; ctx.fillRect(x - 3, y + 32, 8, 20); ctx.fillRect(x + 36, y + 32, 8, 20);
   }
 }

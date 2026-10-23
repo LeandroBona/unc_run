@@ -21,18 +21,20 @@
 // filtro: "hue-rotate(120deg)" na camada da imagem (troque 120 pelo ângulo desejado).
 
 export const fases = [
+  
   {
-    nome: "Campus UNC",
-    titulo: "Corrida para a aula!",
-    mensagem: "Desvie dos obstáculos do campus.",
-    duracao: 45, // segundos
+
+    nome: "Laboratório de elétrica",
+    titulo: "Corrida na elétrica!",
+    mensagem: "Desvie dos obstáculos do SENAI.",
+    duracao: 15, // segundos
     cenario: {
       imagemFundo: "/scenarios/ensino-tecnico/laboratorio-eletrica.png",
       ajusteFundo: "cobrir", // preenche todo o palco sem deformar
       chao: 490, // os pés acompanham a borda superior do piso
       camadasSobreFundo: [
         {
-          imagem: "/scenarios/ensino-tecnico/piso-senai.png",
+          imagem: "/scenarios/ensino-tecnico/chao-uma-listra.png",
           // Este PNG é transparente na parte de cima; mantenha a altura proporcional.
           x: 0, y: 249,
           largura: 1100, altura: 367,
@@ -41,54 +43,56 @@ export const fases = [
       ],
     },
     obstaculos: [
-      { imagem: "/obstaculos/cone.png", acao: "pular", largura: 50, altura: 58 },
-      { imagem: "/obstaculos/livros.png", acao: "pular", largura: 50, altura: 48 },
-      { imagem: "/obstaculos/passaro.png", acao: "agachar", largura: 52, altura: 34, alturaDoChao: 57 },
+      { imagem: "/obstaculos/ensino-tecnico/braco-robotico.png", acao: "pular", largura: 100, altura: 90 },
+      { imagem: "/obstaculos/ensino-tecnico/painel-eletrico.png", acao: "pular", largura: 80, altura: 70 },
+      { imagem: "/obstaculos/ensino-tecnico/raio-eletrico.png", acao: "agachar", largura: 120, altura: 90, alturaDoChao: 57 },
     ],
   },
   {
-    nome: "Museu Paleontológico",
-    titulo: "Aventura entre fósseis!",
-    mensagem: "Cuidado com os fósseis!",
-    duracao: 45,
+    nome: "Oficina de mecânica",
+    titulo: "Aventura na oficina!",
+    mensagem: "desvie dos equipamentos!",
+    duracao: 15,
     cenario: {
-      corFundo: "#1b1817",
+      
+      corFundo: "#45a9ec",
       vinheta: true, // escurece de leve as bordas
       camadas: [
-        { imagem: "/scenarios/museu/museu-paleontologia.png",
+        { imagem: "/scenarios/ensino-tecnico/laboratorio-mecanica.png",
           x: 0, y: 0, largura: 1100, altura: 560,
           recorte: { x: 0, y: 0, largura: 1370, altura: 700 },
           panorama: 0.0009 }, // move lentamente o recorte pela imagem
       ],
     },
     obstaculos: [
-      { imagem: "/obstaculos/fossil.png", acao: "pular", largura: 60, altura: 44 },
-      { imagem: "/obstaculos/pedestal.png", acao: "pular", largura: 46, altura: 50 },
-      { imagem: "/obstaculos/luminaria.png", acao: "agachar", largura: 56, altura: 39,
-        alturaDoChao: 57, imagemY: -28, imagemAltura: 67 },
+      { imagem: "/obstaculos/ensino-tecnico/engrenagem.png", acao: "pular", largura: 60, altura: 60 },
+      { imagem: "/obstaculos/ensino-tecnico/chave-de-fenda.png", acao: "pular", largura: 95, altura: 70 },
+      { imagem: "/obstaculos/ensino-tecnico/morsa.png", acao: "agachar", largura: 90, altura: 60,
+        alturaDoChao: 47, imagemY: -28, imagemAltura: 67 },
     ],
   },
-
+ 
   // MODELO DE FASE NOVA: tire os sinais /* e */ para ativar; troque as imagens.
-  /*
+  
   {
-    nome: "Laboratório de Elétrica",
-    titulo: "Corrida pelo laboratório!",
-    mensagem: "Desvie dos equipamentos.",
-    duracao: 30,
+    nome: "Sala de aula",
+    titulo: "Corrida na sala!",
+    mensagem: "Chegando á tempo!",
+    duracao: 15,
     cenario: {
-      imagemFundo: "/scenarios/ensino-tecnico/laboratorio-eletrica.png",
+      imagemFundo: "/scenarios/ensino-tecnico/sala-de-aula.png",
       ajusteFundo: "cobrir", // ou "esticar", se quiser mostrar a imagem inteira
       chao: 490,
       camadasSobreFundo: [
+        "/scenarios/ensino-tecnico/chao-liso-listra.png",
         // Adicione aqui outros objetos ou camadas que devem aparecer na frente do fundo.
       ],
     },
     obstaculos: [
       { imagem: "/obstaculos/ensino-tecnico/engrenagem.png", acao: "pular", largura: 50, altura: 50 },
       { imagem: "/obstaculos/ensino-tecnico/raio-eletrico.png", acao: "agachar",
-        largura: 52, altura: 34, alturaDoChao: 57 },
+        largura: 70, altura: 70, alturaDoChao: 57 },
     ],
   },
-  */
+  
 ];

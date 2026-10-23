@@ -5,9 +5,9 @@ import { mkdir, writeFile } from "node:fs/promises";
 const pasta = new URL("../public/obstaculos/", import.meta.url);
 await mkdir(pasta, { recursive: true });
 const cores = {
-  verde: "#183d39", vermelho: "#ef5c3b", creme: "#fff3cf", amarelo: "#f5c542",
+  verde: "#183d39", vermelho: "#03e7dc", creme: "#fff3cf", amarelo: "#f5c542",
   azul: "#2f7870", escuro: "#243f3d", osso: "#ead2a0", pedra: "#8b7660",
-  pedestal: "#4b4642", cinza: "#91877c", ouro: "#d4bc85", preto: "#17191a",
+  pedestal: "#4b4642", cinza: "#91877c", ouro: "#d4bc85", preto: "#6bbbe4",
 };
 function sprite(largura, altura) {
   const pixels = Buffer.alloc(largura * altura * 4);
