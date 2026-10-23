@@ -3,6 +3,7 @@ import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { lerRanking, salvarResultado } from "./ranking-local.mjs";
 
 // Servidor simples para alunos: lê os arquivos a cada acesso, sem build nem cache.
 const pastaPublica = resolve(fileURLToPath(new URL("../public/", import.meta.url)));
@@ -29,13 +30,42 @@ const tipos = {
 };
 
 const servidor = createServer(async (requisicao, resposta) => {
+  const enviarJson = (codigo, dados) => resposta.writeHead(codigo, {
+    "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store",
+  }).end(JSON.stringify(dados));
+  let rota;
+  try { rota = decodeURIComponent(new URL(requisicao.url, "http://localhost").pathname); }
+  catch { resposta.writeHead(400).end("Endereço inválido"); return; }
+  if (rota === "/api/ranking") {
+    if (requisicao.method === "GET") {
+      try { enviarJson(200, await lerRanking()); }
+      catch { enviarJson(500, { erro: "Não foi possível ler o ranking." }); }
+      return;
+    }
+    if (requisicao.method !== "POST") { resposta.writeHead(405, { Allow: "GET, POST" }).end(); return; }
+    const origem = requisicao.headers.origin;
+    if (origem && origem !== `http://localhost:${porta}` && origem !== `http://127.0.0.1:${porta}`) {
+      enviarJson(403, { erro: "Origem não permitida." }); return;
+    }
+    if (!String(requisicao.headers["content-type"] || "").startsWith("application/json")) {
+      enviarJson(415, { erro: "Envie dados em JSON." }); return;
+    }
+    try {
+      let corpo = "";
+      for await (const parte of requisicao) {
+        corpo += parte;
+        if (corpo.length > 70000) throw new Error("Resultado muito grande.");
+      }
+      enviarJson(201, await salvarResultado(JSON.parse(corpo)));
+    } catch (erro) {
+      enviarJson(400, { erro: erro instanceof SyntaxError ? "JSON inválido." : erro.message });
+    }
+    return;
+  }
   if (requisicao.method !== "GET" && requisicao.method !== "HEAD") {
     resposta.writeHead(405, { Allow: "GET, HEAD" }).end();
     return;
   }
-  let rota;
-  try { rota = decodeURIComponent(new URL(requisicao.url, "http://localhost").pathname); }
-  catch { resposta.writeHead(400).end("Endereço inválido"); return; }
   if (rota === "/") {
     resposta.writeHead(302, { Location: "/jogo/index.html", "Cache-Control": "no-store" }).end();
     return;

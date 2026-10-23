@@ -19,6 +19,11 @@
 // imagemFundo e ajusteFundo ficam DIRETO em cenario, fora da lista camadas.
 // Um PNG pode cobrir a cor da camada de baixo. Para colorir o próprio PNG, use
 // filtro: "hue-rotate(120deg)" na camada da imagem (troque 120 pelo ângulo desejado).
+// A hitbox é medida dentro do tamanho exibido (largura × altura) do obstáculo.
+// Exemplo: hitbox: { x: 10, y: 5, largura: 40, altura: 45 }.
+// Para objetos com partes separadas, use hitboxes: [{...}, {...}]. A imagem não muda.
+// TEMPO TOTAL: o jogo soma automaticamente as duracoes das fases.
+// Exemplo: tres fases com duracao: 25 mostram 75 segundos no placar.
 
 export const fases = [
   
@@ -43,9 +48,18 @@ export const fases = [
       ],
     },
     obstaculos: [
-      { imagem: "/obstaculos/ensino-tecnico/braco-robotico.png", acao: "pular", largura: 100, altura: 90 },
-      { imagem: "/obstaculos/ensino-tecnico/painel-eletrico.png", acao: "pular", largura: 80, altura: 70 },
-      { imagem: "/obstaculos/ensino-tecnico/raio-eletrico.png", acao: "agachar", largura: 120, altura: 90, alturaDoChao: 57 },
+      { imagem: "/obstaculos/ensino-tecnico/braco-robotico.png", acao: "pular", largura: 100, altura: 90,
+        // Retângulo da colisão dentro dos 100 × 90 pixels exibidos; não aumenta a imagem.
+        hitbox: { x: 32, y: 18, largura: 52, altura: 60 } },
+      { imagem: "/obstaculos/ensino-tecnico/painel-eletrico.png", acao: "pular", largura: 80, altura: 70,
+        hitbox: { x: 13, y: 15, largura: 54, altura: 44 } },
+      { imagem: "/obstaculos/ensino-tecnico/raio-eletrico.png", acao: "agachar", largura: 120, altura: 90,
+        alturaDoChao: 57,
+        hitboxes: [
+          { x: 66, y: 5, largura: 18, altura: 28 },
+          { x: 46, y: 28, largura: 26, altura: 29 },
+          { x: 34, y: 54, largura: 28, altura: 32 },
+        ] },
     ],
   },
   {
@@ -54,25 +68,27 @@ export const fases = [
     mensagem: "desvie dos equipamentos!",
     duracao: 15,
     cenario: {
-      
-      corFundo: "#45a9ec",
+      imagemFundo: "/scenarios/ensino-tecnico/oficina-mecanica.png",
+      ajusteFundo: "cobrir",
+      chao: 490,
       vinheta: true, // escurece de leve as bordas
-      camadas: [
-        { imagem: "/scenarios/ensino-tecnico/laboratorio-mecanica.png",
-          x: 0, y: 0, largura: 1100, altura: 560,
-          recorte: { x: 0, y: 0, largura: 1370, altura: 700 },
-          panorama: 0.0009 }, // move lentamente o recorte pela imagem
+      camadasSobreFundo: [
+        { imagem: "/scenarios/ensino-tecnico/chao-listra.png",
+          x: 0, y: 265, largura: 1100, altura: 367, velocidade: 1, repetir: 1100 },
       ],
     },
     obstaculos: [
-      { imagem: "/obstaculos/ensino-tecnico/engrenagem.png", acao: "pular", largura: 60, altura: 60 },
-      { imagem: "/obstaculos/ensino-tecnico/chave-de-fenda.png", acao: "pular", largura: 95, altura: 70 },
-      { imagem: "/obstaculos/ensino-tecnico/morsa.png", acao: "agachar", largura: 90, altura: 60,
-        alturaDoChao: 47, imagemY: -28, imagemAltura: 67 },
+      { imagem: "/obstaculos/ensino-tecnico/engrenagem.png", acao: "pular", largura: 60, altura: 60,
+        hitbox: { x: 3, y: 3, largura: 54, altura: 54 } },
+      { imagem: "/obstaculos/ensino-tecnico/chave-de-fenda.png", acao: "pular", largura: 95, altura: 70,
+        hitbox: { x: 41, y: 2, largura: 14, altura: 66 } },
+      { imagem: "/obstaculos/ensino-tecnico/morsa.png", acao: "pular", largura: 90, altura: 60,
+        imagemY: 5, imagemAltura: 67,
+        hitbox: { x: 2, y: 21, largura: 86, altura: 37 } },
     ],
   },
  
-  // MODELO DE FASE NOVA: tire os sinais /* e */ para ativar; troque as imagens.
+  // Terceira fase pronta. Copie o bloco inteiro para criar outra fase.
   
   {
     nome: "Sala de aula",
@@ -84,14 +100,21 @@ export const fases = [
       ajusteFundo: "cobrir", // ou "esticar", se quiser mostrar a imagem inteira
       chao: 490,
       camadasSobreFundo: [
-        "/scenarios/ensino-tecnico/chao-liso-listra.png",
+        { imagem: "/scenarios/ensino-tecnico/chao-liso-listra.png",
+          x: 0, y: 270, largura: 1100, altura: 367, velocidade: 1, repetir: 1100 },
         // Adicione aqui outros objetos ou camadas que devem aparecer na frente do fundo.
       ],
     },
     obstaculos: [
-      { imagem: "/obstaculos/ensino-tecnico/engrenagem.png", acao: "pular", largura: 50, altura: 50 },
+      { imagem: "/obstaculos/ensino-tecnico/engrenagem.png", acao: "pular", largura: 50, altura: 50,
+        hitbox: { x: 2, y: 2, largura: 46, altura: 46 } },
       { imagem: "/obstaculos/ensino-tecnico/raio-eletrico.png", acao: "agachar",
-        largura: 70, altura: 70, alturaDoChao: 57 },
+        largura: 70, altura: 70, alturaDoChao: 57,
+        hitboxes: [
+          { x: 39, y: 4, largura: 11, altura: 23 },
+          { x: 27, y: 22, largura: 16, altura: 24 },
+          { x: 20, y: 42, largura: 17, altura: 25 },
+        ] },
     ],
   },
   

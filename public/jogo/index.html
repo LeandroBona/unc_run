@@ -21,7 +21,7 @@
         <h1 id="titulo-fase">Corrida para a aula!</h1>
       </div>
       <div class="placar">
-        <div><small>TEMPO</small><strong id="tempo">90</strong></div>
+        <div><small>TEMPO</small><strong id="tempo">--</strong></div>
         <div><small>PONTOS</small><strong id="pontos">0000</strong></div>
         <div><small>RECORDE</small><strong id="recorde">0000</strong></div>
       </div>
@@ -46,6 +46,19 @@
         <span class="etiqueta" id="resultado-etiqueta">FIM DA CORRIDA</span>
         <h2 id="resultado-titulo">Boa corrida!</h2>
         <p id="resultado-texto"></p>
+        <div class="registro-resultado">
+          <div class="foto-resultado">
+            <img id="foto-preview" alt="Foto do jogador" hidden>
+            <span id="foto-vazia">📷</span>
+          </div>
+          <div class="registro-campos">
+            <label for="nome-jogador">Seu nome no ranking</label>
+            <input id="nome-jogador" maxlength="32" autocomplete="nickname" placeholder="Digite seu nome">
+            <button class="botao-secundario" id="tirar-foto" type="button">TIRAR FOTO COM A WEBCAM</button>
+            <button class="botao-principal" id="salvar-ranking" type="button">SALVAR NO RANKING</button>
+          </div>
+        </div>
+        <p class="estado-ranking" id="estado-ranking" role="status"></p>
         <button class="botao-principal" id="reiniciar">JOGAR DE NOVO ↻</button>
       </div>
 
@@ -54,6 +67,12 @@
         <span id="estado-camera">INICIANDO CÂMERA</span>
       </div>
       <div class="ferramentas"><button id="ligar-camera">◎ CÂMERA</button><button id="recalibrar" hidden>◎ RECALIBRAR</button><button id="parar-camera" hidden>PARAR CÂMERA</button><button id="tela-cheia">⛶ TELA CHEIA</button></div>
+    </section>
+
+    <section class="ranking" aria-labelledby="titulo-ranking">
+      <div class="ranking-cabecalho"><div><small>PLACAR DESTE COMPUTADOR</small><h2 id="titulo-ranking">Ranking geral</h2></div><span>TOP 10</span></div>
+      <ol id="ranking-lista"><li>Carregando ranking...</li></ol>
+      <p id="aviso-ranking">As fotos e os pontos ficam salvos apenas neste computador.</p>
     </section>
 
     <div class="instrucoes">

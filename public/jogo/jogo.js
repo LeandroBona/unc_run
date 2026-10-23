@@ -1,5 +1,7 @@
 import { fases } from "./fases.js?v=alunos-1";
 import { iniciarCamera } from "./camera.js";
+import { colideComObstaculo } from "./colisao.js";
+import { calcularTempoTotal, calcularTempoRestante } from "./tempo.js";
 
 // Mecânica do jogo. Para trocar cenários ou criar fases, edite apenas fases.js.
 const canvas = document.querySelector("#jogo");
@@ -9,7 +11,7 @@ const ALTURA = canvas.height;
 const CHAO_PADRAO = 446;
 const VELOCIDADE = 7.2;
 const GRAVIDADE = 0.9;
-const DURACAO_TOTAL = fases.reduce((soma, fase) => soma + fase.duracao, 0);
+const DURACAO_TOTAL = calcularTempoTotal(fases);
 const $ = (seletor) => document.querySelector(seletor);
 const elementos = {
   nome: $("#nome-fase"), titulo: $("#titulo-fase"), tempo: $("#tempo"),
@@ -19,9 +21,12 @@ const elementos = {
   final: $("#tela-final"), resultadoEtiqueta: $("#resultado-etiqueta"),
   resultadoTitulo: $("#resultado-titulo"), resultadoTexto: $("#resultado-texto"),
   avisoCamera: $("#aviso-camera"), estadoCamera: $("#estado-camera"),
+  foto: $("#foto-preview"), fotoVazia: $("#foto-vazia"), estadoRanking: $("#estado-ranking"),
+  ranking: $("#ranking-lista"),
 };
 
 const imagens = new Map();
+const mascaras = new Map();
 for (const fase of fases) {
   const caminhos = [
     fase.cenario?.imagemFundo,
@@ -54,6 +59,7 @@ function chaoDaFase() {
 let tempoDaFase = 0;
 let tempoDaPartida = 0;
 let distancia = 0;
+let bonus = 0;
 let pontos = 0;
 let proximoObstaculo = 760;
 let obstaculos = [];
@@ -64,11 +70,13 @@ let comandoPulo = false;
 let teclaAgachar = false;
 let cameraAgachar = false;
 let cameraAtiva = null;
+let fotoPendente = "";
+let resultadoAtual = null;
 let jogador = { y: chaoDaFase() - 66, velocidadeY: 0, agachado: false };
 
 function mostrar(elemento, sim) { elemento.classList.toggle("escondido", !sim); }
 function textoPlacar() {
-  elementos.tempo.textContent = Math.max(0, Math.ceil(DURACAO_TOTAL - tempoDaPartida / 1000));
+  elementos.tempo.textContent = calcularTempoRestante(DURACAO_TOTAL, tempoDaPartida);
   elementos.pontos.textContent = String(pontos).padStart(4, "0");
   elementos.recorde.textContent = String(recorde).padStart(4, "0");
 }
@@ -83,6 +91,7 @@ function novoJogo() {
   tempoDaFase = 0;
   tempoDaPartida = 0;
   distancia = 0;
+  bonus = 0;
   pontos = 0;
   proximoObstaculo = 760;
   obstaculos = [];
@@ -90,6 +99,12 @@ function novoJogo() {
   comandoPulo = false;
   teclaAgachar = false;
   cameraAgachar = false;
+  fotoPendente = "";
+  resultadoAtual = null;
+  elementos.foto.hidden = true;
+  elementos.fotoVazia.hidden = false;
+  elementos.estadoRanking.textContent = "";
+  $("#salvar-ranking").disabled = false;
   atualizarCabecalho();
   textoPlacar();
   mostrar(elementos.inicial, false);
@@ -113,9 +128,17 @@ function terminar(venceu) {
   modo = "fim";
   mostrar(elementos.fase, false);
   mostrar(elementos.final, true);
+  elementos.final.classList.toggle("vitoria", venceu);
   elementos.resultadoEtiqueta.textContent = venceu ? "TODAS AS FASES CONCLUÍDAS" : "FIM DA CORRIDA";
-  elementos.resultadoTitulo.textContent = venceu ? "Você chegou à aula!" : "Tente mais uma vez!";
-  elementos.resultadoTexto.textContent = `Você fez ${pontos} pontos e chegou à fase ${faseAtual + 1} de ${fases.length}.`;
+  elementos.resultadoTitulo.textContent = venceu ? "🏆 Jogo concluído!" : "Tente mais uma vez!";
+  elementos.resultadoTexto.textContent = venceu
+    ? `Você completou as ${fases.length} fases e fez ${pontos} pontos. Registre sua conquista abaixo.`
+    : `Você fez ${pontos} pontos e chegou à fase ${faseAtual + 1} de ${fases.length}.`;
+  resultadoAtual = { pontos, venceu, fasesConcluidas: venceu ? fases.length : faseAtual };
+  if (cameraAtiva) {
+    try { definirFoto(capturarQuadro($("#video-camera"))); }
+    catch { elementos.estadoRanking.textContent = "Não foi possível capturar a foto. Use o botão abaixo."; }
+  }
   recorde = Math.max(recorde, pontos);
   salvarNumero(chaveRecorde, recorde);
   textoPlacar();
@@ -129,12 +152,37 @@ function mudarFase(agora) {
   proximoObstaculo = 820;
   jogador.y = chaoDaFase() - 66;
   jogador.velocidadeY = 0;
+  jogador.agachado = false;
+  comandoPulo = false;
   atualizarCabecalho();
   elementos.anuncio.textContent = fases[faseAtual].nome;
   elementos.mensagem.textContent = fases[faseAtual].mensagem;
   mostrar(elementos.fase, true);
   transicaoAte = agora + 1800;
   modo = "transicao";
+}
+
+function mascaraDaImagem(caminho, largura, altura) {
+  const chave = `${caminho}:${largura}x${altura}`;
+  if (mascaras.has(chave)) return mascaras.get(chave);
+  const imagem = imagens.get(caminho);
+  if (!imagem?.complete || !imagem.naturalWidth) return null;
+  try {
+    const copia = document.createElement("canvas");
+    copia.width = largura;
+    copia.height = altura;
+    const contexto = copia.getContext("2d", { willReadFrequently: true });
+    contexto.drawImage(imagem, 0, 0, largura, altura);
+    const rgba = contexto.getImageData(0, 0, largura, altura).data;
+    const pixels = new Uint8Array(largura * altura);
+    for (let i = 0; i < pixels.length; i++) pixels[i] = rgba[i * 4 + 3] >= 96 ? 1 : 0;
+    const mascara = { largura, altura, pixels };
+    mascaras.set(chave, mascara);
+    return mascara;
+  } catch {
+    // Se a imagem não permitir leitura, as hitboxes continuam funcionando.
+    return null;
+  }
 }
 
 function criarObstaculo() {
@@ -151,15 +199,10 @@ function criarObstaculo() {
     imagemY: modelo.imagemY || 0,
     imagemAltura: modelo.imagemAltura || altura,
     acao: modelo.acao,
+    hitbox: modelo.hitbox,
+    hitboxes: modelo.hitboxes,
+    mascara: mascaraDaImagem(modelo.imagem, largura, modelo.imagemAltura || altura),
   });
-}
-function colisao(a, b) {
-  const margemX = 7;
-  const margemY = b.acao === "agachar" ? 1 : 5;
-  return a.x < b.x + b.largura - margemX &&
-    a.x + a.largura > b.x + margemX &&
-    a.y < b.y + b.altura - margemY &&
-    a.y + a.altura > b.y + margemY;
 }
 function atualizar(delta, agora) {
   if (modo === "transicao") {
@@ -172,7 +215,7 @@ function atualizar(delta, agora) {
   tempoDaFase += delta;
   tempoDaPartida += delta;
   distancia += movimento;
-  pontos = Math.floor(distancia / 8);
+  pontos = Math.floor(distancia / 8) + bonus;
   textoPlacar();
   if (tempoDaFase >= fases[faseAtual].duracao * 1000) { mudarFase(agora); return; }
 
@@ -195,10 +238,18 @@ function atualizar(delta, agora) {
     criarObstaculo();
     proximoObstaculo = 580 + Math.random() * 320;
   }
-  for (const obstaculo of obstaculos) obstaculo.x -= movimento;
+  for (const obstaculo of obstaculos) {
+    obstaculo.x -= movimento;
+    if (!obstaculo.ultrapassado && obstaculo.x + obstaculo.largura < 149) {
+      obstaculo.ultrapassado = true;
+      bonus += 25;
+    }
+  }
+  pontos = Math.floor(distancia / 8) + bonus;
+  textoPlacar();
   obstaculos = obstaculos.filter((obstaculo) => obstaculo.x > -100);
   const areaJogador = { x: 149, y: jogador.y + 4, largura: jogador.agachado ? 52 : 34, altura: jogador.agachado ? 38 : 60 };
-  if (obstaculos.some((obstaculo) => colisao(areaJogador, obstaculo))) terminar(false);
+  if (obstaculos.some((obstaculo) => colideComObstaculo(areaJogador, obstaculo))) terminar(false);
 }
 
 function desenharCamada(camada) {
@@ -334,6 +385,120 @@ function quadro(agora) {
   requestAnimationFrame(quadro);
 }
 
+function capturarQuadro(video) {
+  if (video.readyState < 2 || !video.videoWidth) throw new Error("A webcam ainda não está pronta.");
+  const tamanho = Math.min(video.videoWidth, video.videoHeight);
+  const foto = document.createElement("canvas");
+  foto.width = 160; foto.height = 160;
+  const contexto = foto.getContext("2d", { alpha: false });
+  contexto.translate(160, 0);
+  contexto.scale(-1, 1);
+  contexto.drawImage(video, (video.videoWidth - tamanho) / 2, (video.videoHeight - tamanho) / 2,
+    tamanho, tamanho, 0, 0, 160, 160);
+  return foto.toDataURL("image/jpeg", .68);
+}
+function definirFoto(foto) {
+  fotoPendente = foto;
+  elementos.foto.src = foto;
+  elementos.foto.hidden = false;
+  elementos.fotoVazia.hidden = true;
+  elementos.estadoRanking.textContent = "Foto pronta para salvar neste computador.";
+}
+async function tirarFoto() {
+  const botao = $("#tirar-foto");
+  botao.disabled = true;
+  elementos.estadoRanking.textContent = "Abrindo a webcam...";
+  let stream;
+  try {
+    if (cameraAtiva && $("#video-camera").readyState >= 2) {
+      definirFoto(capturarQuadro($("#video-camera")));
+      return;
+    }
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: "user" }, audio: false,
+    });
+    const video = document.createElement("video");
+    video.muted = true;
+    video.playsInline = true;
+    video.srcObject = stream;
+    await video.play();
+    definirFoto(capturarQuadro(video));
+    video.pause();
+    video.srcObject = null;
+  } catch {
+    elementos.estadoRanking.textContent = "Não foi possível tirar a foto. Confira a permissão da webcam.";
+  } finally {
+    stream?.getTracks().forEach((track) => track.stop());
+    botao.disabled = false;
+  }
+}
+function mostrarRanking(ranking) {
+  elementos.ranking.replaceChildren();
+  if (!ranking.length) {
+    const vazio = document.createElement("li");
+    vazio.textContent = "Nenhuma partida registrada ainda.";
+    elementos.ranking.append(vazio);
+    return;
+  }
+  ranking.slice(0, 10).forEach((item, indice) => {
+    const linha = document.createElement("li");
+    const posicao = document.createElement("strong");
+    posicao.textContent = `${indice + 1}º`;
+    if (item.foto?.startsWith("data:image/jpeg;base64,")) {
+      const foto = document.createElement("img");
+      foto.src = item.foto;
+      foto.alt = `Foto de ${item.nome}`;
+      linha.append(foto);
+    } else {
+      const avatar = document.createElement("span");
+      avatar.className = "ranking-avatar";
+      avatar.textContent = "📷";
+      linha.append(avatar);
+    }
+    const nome = document.createElement("b");
+    nome.textContent = item.nome;
+    const pontos = document.createElement("strong");
+    pontos.textContent = `${item.pontos} pts`;
+    linha.prepend(posicao);
+    linha.append(nome, pontos);
+    elementos.ranking.append(linha);
+  });
+}
+async function carregarRanking() {
+  try {
+    const resposta = await fetch("/api/ranking", { cache: "no-store" });
+    if (!resposta.ok) throw new Error();
+    mostrarRanking(await resposta.json());
+  } catch {
+    elementos.ranking.replaceChildren();
+    const aviso = document.createElement("li");
+    aviso.textContent = "Ranking indisponível. Inicie o jogo com npm run dev.";
+    elementos.ranking.append(aviso);
+  }
+}
+async function salvarNoRanking() {
+  if (!resultadoAtual) return;
+  const botao = $("#salvar-ranking");
+  const nome = $("#nome-jogador").value.trim();
+  if (!nome) { elementos.estadoRanking.textContent = "Digite seu nome para salvar."; return; }
+  if (!fotoPendente) { elementos.estadoRanking.textContent = "Tire uma foto com a webcam antes de salvar."; return; }
+  botao.disabled = true;
+  elementos.estadoRanking.textContent = "Salvando resultado...";
+  try {
+    const resposta = await fetch("/api/ranking", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...resultadoAtual, nome, foto: fotoPendente }),
+    });
+    const dados = await resposta.json();
+    if (!resposta.ok) throw new Error(dados.erro || "Não foi possível salvar.");
+    elementos.estadoRanking.textContent = "Resultado e foto salvos no ranking deste computador!";
+    mostrarRanking(dados.ranking);
+  } catch (erro) {
+    elementos.estadoRanking.textContent = erro.message;
+    botao.disabled = false;
+  }
+}
+
 // Controles de teclado. O controle pela câmera chama as mesmas ações.
 document.addEventListener("keydown", (evento) => {
   if (["Space", "ArrowUp", "ArrowDown"].includes(evento.code)) evento.preventDefault();
@@ -350,6 +515,8 @@ function alternarTelaCheia() {
 }
 $("#iniciar").addEventListener("click", novoJogo);
 $("#reiniciar").addEventListener("click", novoJogo);
+$("#tirar-foto").addEventListener("click", tirarFoto);
+$("#salvar-ranking").addEventListener("click", salvarNoRanking);
 $("#tela-cheia").addEventListener("click", alternarTelaCheia);
 async function ativarCamera() {
   if (cameraAtiva) return;
@@ -403,3 +570,4 @@ if (fases.length === 0) {
   textoPlacar();
   requestAnimationFrame(quadro);
 }
+carregarRanking();

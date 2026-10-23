@@ -68,6 +68,33 @@ h1 { margin: 0; font: bold clamp(29px, 3.3vw, 46px)/1 Georgia, serif; }
 .botao-secundario:disabled { opacity: .55; cursor: default; }
 .cartao .aviso-camera { margin: 8px auto 0; color: #a73325; font-size: 11px; }
 .aviso-camera:empty { display: none; }
+#tela-final { z-index: 5; width: min(520px, 92%); max-height: 94%; overflow-y: auto; padding: 16px 22px; }
+#tela-final h2 { margin: 8px 0; }
+#tela-final.vitoria { border-color: #e5ae2f; background: linear-gradient(150deg, #fffef0, #e8f7ff); box-shadow: 8px 8px 0 #9b6a10; }
+#tela-final.vitoria .etiqueta { background: #f6d069; }
+.registro-resultado { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 12px 0; text-align: left; }
+.foto-resultado { display: grid; place-items: center; flex: 0 0 92px; width: 92px; height: 92px; overflow: hidden; border: 2px solid var(--verde); border-radius: 10px; background: #deedf0; }
+.foto-resultado img { width: 100%; height: 100%; object-fit: cover; }
+.foto-resultado span { font-size: 34px; }
+.registro-campos { display: grid; gap: 5px; min-width: 0; flex: 1; }
+.registro-campos label { font-size: 11px; font-weight: 900; }
+.registro-campos input { width: 100%; min-width: 0; padding: 8px; border: 1px solid var(--verde); border-radius: 5px; font: inherit; }
+.registro-campos .botao-secundario { width: 100%; margin: 0; padding: 7px; }
+.registro-campos .botao-principal { min-width: 0; padding: 9px; }
+#tela-final .estado-ranking { margin: 3px auto 10px; min-height: 14px; font-size: 11px; }
+#tela-final #reiniciar { background: var(--verde); }
+.ranking { margin: 30px 6px 0; padding: 18px; border: 2px solid var(--verde); border-radius: 12px; background: #fff8e7ed; }
+.ranking-cabecalho { display: flex; justify-content: space-between; align-items: center; }
+.ranking-cabecalho small, .ranking-cabecalho span { color: var(--laranja); font-size: 10px; font-weight: 900; letter-spacing: .12em; }
+.ranking-cabecalho h2 { margin: 5px 0 15px; font: bold 27px Georgia, serif; }
+.ranking ol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; margin: 0; padding: 0; list-style: none; }
+.ranking li { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 6px 8px; border-bottom: 1px solid #b9bec1; font-size: 12px; }
+.ranking li img, .ranking-avatar { width: 36px; height: 36px; flex: 0 0 36px; border-radius: 50%; object-fit: cover; background: #dde9ef; }
+.ranking-avatar { display: grid; place-items: center; }
+.ranking li b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ranking li strong { margin-left: auto; }
+.ranking #aviso-ranking { margin: 12px 0 0; font-size: 11px; }
+.palco:has(#tela-final:not(.escondido)) .ferramentas { display: none; }
 
 .tela-contagem, .tela-fase { position: absolute; z-index: 2; inset: 0; display: grid; place-content: center; gap: 12px; background: #173d39b8; color: white; text-align: center; }
 .tela-contagem strong { font: 900 clamp(80px, 13vw, 150px)/1 Georgia, serif; text-shadow: 5px 5px 0 var(--verde); }
@@ -100,6 +127,15 @@ footer strong { color: var(--amarelo); }
   .cartao { width: min(470px, 84%); padding: 18px; }
   .instrucoes { grid-template-columns: 1fr; }
   .instrucoes > div { padding-bottom: 9px; border-right: 0; border-bottom: 1px solid #59bdf7; }
+  #tela-final { padding: 8px 12px; }
+  #tela-final h2 { margin: 4px 0; font-size: 24px; }
+  #tela-final p { margin-bottom: 5px; }
+  .registro-resultado { gap: 8px; margin: 5px 0; }
+  .foto-resultado { width: 64px; height: 64px; flex-basis: 64px; }
+  .registro-campos { gap: 3px; }
+  .registro-campos input { padding: 5px; }
+  .registro-campos .botao-secundario, .registro-campos .botao-principal { padding: 5px; }
+  #tela-final #reiniciar { padding: 8px; }
 }
 @media (max-width: 640px) {
   .topo { min-height: 58px; }
@@ -121,5 +157,15 @@ footer strong { color: var(--amarelo); }
   .placar div { min-width: 75px; padding: 2px 7px; }
   .placar strong { font-size: 19px; }
   footer { flex-direction: column; }
+  #tela-final { width: 95%; max-height: 96%; padding: 6px 10px; }
+  .registro-resultado { gap: 6px; margin: 4px 0; }
+  .foto-resultado { width: 52px; height: 52px; flex-basis: 52px; }
+  .foto-resultado span { font-size: 22px; }
+  .registro-campos { gap: 2px; }
+  .registro-campos label { font-size: 8px; }
+  .registro-campos input { padding: 3px; font-size: 10px; }
+  .registro-campos .botao-secundario, .registro-campos .botao-principal { padding: 3px; font-size: 8px; }
+  #tela-final .estado-ranking { margin: 1px; font-size: 8px; }
+  .ranking ol { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
