@@ -32,7 +32,7 @@ export const fases = [
     nome: "Laboratório de elétrica",
     titulo: "Corrida na elétrica!",
     mensagem: "Desvie dos obstáculos do SENAI.",
-    duracao: 15, // segundos
+    duracao: 20, // segundos
     cenario: {
       imagemFundo: "/scenarios/ensino-tecnico/laboratorio-eletrica.png",
       ajusteFundo: "cobrir", // preenche todo o palco sem deformar
@@ -66,7 +66,7 @@ export const fases = [
     nome: "Oficina de mecânica",
     titulo: "Aventura na oficina!",
     mensagem: "desvie dos equipamentos!",
-    duracao: 15,
+    duracao: 20,
     cenario: {
       imagemFundo: "/scenarios/ensino-tecnico/oficina-mecanica.png",
       ajusteFundo: "cobrir",
@@ -82,7 +82,7 @@ export const fases = [
         hitbox: { x: 3, y: 3, largura: 54, altura: 54 } },
       { imagem: "/obstaculos/ensino-tecnico/chave-de-fenda.png", acao: "pular", largura: 95, altura: 70,
         hitbox: { x: 41, y: 2, largura: 14, altura: 66 } },
-      { imagem: "/obstaculos/ensino-tecnico/morsa.png", acao: "pular", largura: 90, altura: 60,
+      { imagem: "/obstaculos/ensino-tecnico/morsa.png", acao: "agachar", largura: 90, altura: 60,
         imagemY: 5, imagemAltura: 67,
         hitbox: { x: 2, y: 21, largura: 86, altura: 37 } },
     ],
@@ -106,7 +106,7 @@ export const fases = [
       ],
     },
     obstaculos: [
-      { imagem: "/obstaculos/ensino-tecnico/engrenagem.png", acao: "pular", largura: 50, altura: 50,
+      { imagem: "/obstaculos/ensino-tecnico/carteira-escolar.png", acao: "pular", largura: 50, altura: 50,
         hitbox: { x: 2, y: 2, largura: 46, altura: 46 } },
       { imagem: "/obstaculos/ensino-tecnico/raio-eletrico.png", acao: "agachar",
         largura: 70, altura: 70, alturaDoChao: 57,
