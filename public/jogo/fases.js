@@ -82,19 +82,53 @@ export const fases = [
         hitbox: { x: 3, y: 3, largura: 54, altura: 54 } },
       { imagem: "/obstaculos/ensino-tecnico/chave-de-fenda.png", acao: "pular", largura: 95, altura: 70,
         hitbox: { x: 41, y: 2, largura: 14, altura: 66 } },
-      { imagem: "/obstaculos/ensino-tecnico/morsa.png", acao: "agachar", largura: 90, altura: 60,
-        imagemY: 5, imagemAltura: 67,
-        hitbox: { x: 2, y: 21, largura: 86, altura: 37 } },
+        {imagem: "/obstaculos/ensino-tecnico/morsa.png", acao: "agachar", largura: 90, altura: 90,
+          alturaDoChao: 57,
+        hitboxes: [
+          { x: 66, y: 5, largura: 18, altura: 28 },
+          { x: 46, y: 28, largura: 26, altura: 29 },
+          { x: 34, y: 54, largura: 28, altura: 32 },
+        ] },
     ],
   },
  
   // Terceira fase pronta. Copie o bloco inteiro para criar outra fase.
   
   {
+    nome: "Sala de costura",
+    titulo: "Corrida na sala de costura!",
+    mensagem: "Corra!",
+    duracao: 25,
+    cenario: {
+      imagemFundo: "/scenarios/ensino-tecnico/sala-costura.png",
+      ajusteFundo: "cobrir", // ou "esticar", se quiser mostrar a imagem inteira
+      chao: 490,
+      camadasSobreFundo: [
+        { imagem: "/scenarios/ensino-tecnico/chao-liso-listra.png",
+          x: 0, y: 270, largura: 1100, altura: 367, velocidade: 1, repetir: 1100 },
+        // Adicione aqui outros objetos ou camadas que devem aparecer na frente do fundo.
+      ],
+    },
+    obstaculos: [
+      { imagem: "/obstaculos/ensino-tecnico/maquina_costura_industrial.png", acao: "pular", largura: 60, altura: 60,
+        hitbox: { x: 2, y: 2, largura: 46, altura: 46 } },
+      { imagem: "/obstaculos/ensino-tecnico/painel_ferramentas.png", acao: "agachar",
+        largura: 100, altura: 100, alturaDoChao: 57,
+        hitboxes: [
+          { x: 39, y: 4, largura: 11, altura: 23 },
+          { x: 27, y: 22, largura: 16, altura: 24 },
+          { x: 20, y: 42, largura: 17, altura: 25 },
+        ] },
+    ],
+  },
+  
+
+
+{
     nome: "Sala de aula",
     titulo: "Corrida na sala!",
     mensagem: "Chegando á tempo!",
-    duracao: 15,
+    duracao: 30,
     cenario: {
       imagemFundo: "/scenarios/ensino-tecnico/sala-de-aula.png",
       ajusteFundo: "cobrir", // ou "esticar", se quiser mostrar a imagem inteira
@@ -106,10 +140,10 @@ export const fases = [
       ],
     },
     obstaculos: [
-      { imagem: "/obstaculos/ensino-tecnico/carteira-escolar.png", acao: "pular", largura: 50, altura: 50,
+      { imagem: "/obstaculos/ensino-tecnico/carteira-escolar.png", acao: "pular", largura: 90, altura: 80,
         hitbox: { x: 2, y: 2, largura: 46, altura: 46 } },
       { imagem: "/obstaculos/ensino-tecnico/raio-eletrico.png", acao: "agachar",
-        largura: 70, altura: 70, alturaDoChao: 57,
+        largura: 120, altura: 90, alturaDoChao: 57,
         hitboxes: [
           { x: 39, y: 4, largura: 11, altura: 23 },
           { x: 27, y: 22, largura: 16, altura: 24 },
@@ -118,4 +152,35 @@ export const fases = [
     ],
   },
   
-];
+
+
+
+{
+    nome: "Sala de costura",
+    titulo: "Corrida na sala de costura!",
+    mensagem: "Corra!",
+    duracao: 70,
+    cenario: {
+      imagemFundo: "/scenarios/ensino-tecnico/sala-costura.png",
+      ajusteFundo: "cobrir", // ou "esticar", se quiser mostrar a imagem inteira
+      chao: 490,
+      camadasSobreFundo: [
+        { imagem: "/scenarios/ensino-tecnico/chao-liso-listra.png",
+          x: 0, y: 270, largura: 1100, altura: 367, velocidade: 1, repetir: 1100 },
+        // Adicione aqui outros objetos ou camadas que devem aparecer na frente do fundo.
+      ],
+    },
+    obstaculos: [
+      { imagem: "/obstaculos/ensino-tecnico/suporte_rolos_tecido.png", acao: "pular", largura: 70, altura: 70,
+        hitbox: { x: 2, y: 2, largura: 46, altura: 46 } },
+      { imagem: "/obstaculos/ensino-tecnico/tecidos_dobrados.png", acao: "agachar",
+        largura: 100, altura: 90, alturaDoChao: 57,
+        hitboxes: [
+          { x: 39, y: 4, largura: 11, altura: 23 },
+          { x: 27, y: 22, largura: 16, altura: 24 },
+          { x: 20, y: 42, largura: 17, altura: 25 },
+        ] },
+    ],
+  },
+  
+]
