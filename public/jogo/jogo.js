@@ -434,6 +434,8 @@ async function tirarFoto() {
 }
 function mostrarRanking(ranking) {
   elementos.ranking.replaceChildren();
+  $("#estado-limpeza-ranking").textContent = "";
+  $("#limpar-ranking").disabled = ranking.length === 0;
   if (!ranking.length) {
     const vazio = document.createElement("li");
     vazio.textContent = "Nenhuma partida registrada ainda.";
@@ -470,10 +472,28 @@ async function carregarRanking() {
     if (!resposta.ok) throw new Error();
     mostrarRanking(await resposta.json());
   } catch {
+    $("#limpar-ranking").disabled = true;
     elementos.ranking.replaceChildren();
     const aviso = document.createElement("li");
     aviso.textContent = "Ranking indisponível. Inicie o jogo com npm run dev.";
     elementos.ranking.append(aviso);
+  }
+}
+async function limparRanking() {
+  if (!window.confirm("Apagar todas as pontuações e fotos do ranking neste computador?")) return;
+  const botao = $("#limpar-ranking");
+  const estado = $("#estado-limpeza-ranking");
+  botao.disabled = true;
+  estado.textContent = "Limpando ranking...";
+  try {
+    const resposta = await fetch("/api/ranking", { method: "DELETE" });
+    const dados = await resposta.json();
+    if (!resposta.ok) throw new Error(dados.erro || "Não foi possível limpar o ranking.");
+    mostrarRanking(dados.ranking);
+    estado.textContent = "Ranking limpo. Pontuações e fotos foram apagadas.";
+  } catch (erro) {
+    botao.disabled = false;
+    estado.textContent = erro.message || "Não foi possível limpar o ranking.";
   }
 }
 async function salvarNoRanking() {
@@ -517,6 +537,7 @@ $("#iniciar").addEventListener("click", novoJogo);
 $("#reiniciar").addEventListener("click", novoJogo);
 $("#tirar-foto").addEventListener("click", tirarFoto);
 $("#salvar-ranking").addEventListener("click", salvarNoRanking);
+$("#limpar-ranking").addEventListener("click", limparRanking);
 $("#tela-cheia").addEventListener("click", alternarTelaCheia);
 async function ativarCamera() {
   if (cameraAtiva) return;

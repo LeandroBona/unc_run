@@ -153,12 +153,12 @@ Ao terminar todas as fases, aparece a tela **Jogo concluído**. O ranking geral 
 
 Para entrar no ranking, digite o nome e tire uma foto com a webcam. Se a câmera de movimento estiver ativa, o jogo captura uma foto automaticamente ao terminar a partida; você pode usar **Tirar foto com a webcam** para refazê-la. A foto só é gravada quando você clica em **Salvar no ranking**. Também é possível jogar pelo teclado e ativar a webcam apenas para a foto no final.
 
-O servidor cria `dados/ranking.json` automaticamente na pasta do projeto. Os dados ficam **somente no computador que está executando `npm run dev`** e não são compartilhados pela internet. Para limpar o ranking, encerre o servidor e apague esse arquivo. Se copiar o projeto para outro computador sem a pasta `dados`, o ranking começa vazio. Não envie `dados/ranking.json` junto com o projeto se quiser preservar a privacidade dos jogadores.
+O servidor cria `dados/ranking.json` automaticamente na pasta do projeto. Os dados ficam **somente no computador que está executando `npm run dev`** e não são compartilhados pela internet. O botão **Limpar ranking** apaga todas as pontuações e fotos do ranking após uma confirmação. O recorde individual do navegador continua separado. Se copiar o projeto para outro computador sem a pasta `dados`, o ranking começa vazio. Não envie `dados/ranking.json` junto com o projeto se quiser preservar a privacidade dos jogadores.
 
 ## Controles
 
 - **↑ ou Espaço:** pular. **↓:** agachar.
-- **Câmera opcional:** ative, permita o acesso e fique no centro com o corpo visível até a calibração terminar. Pule e agache com o corpo. O botão **Parar câmera** encerra a captura.
+- **Câmera opcional:** ative, permita o acesso e fique em pé com ombros e quadril visíveis por um instante para calibrar. Não é necessário mostrar as pernas ou se afastar muito. Faça um pequeno pulo ou agache para controlar o jogo. O botão **Parar câmera** encerra a captura.
 - **R:** recalibrar. **F:** tela cheia.
 
 A análise dos movimentos acontece no navegador. O jogo salva apenas a foto capturada para o ranking, após o clique em **Salvar no ranking**; não grava vídeo. O recorde individual continua no armazenamento local do navegador.

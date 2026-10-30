@@ -3,7 +3,7 @@ import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { lerRanking, salvarResultado } from "./ranking-local.mjs";
+import { lerRanking, limparRanking, salvarResultado } from "./ranking-local.mjs";
 
 // Servidor simples para alunos: lê os arquivos a cada acesso, sem build nem cache.
 const pastaPublica = resolve(fileURLToPath(new URL("../public/", import.meta.url)));
@@ -42,10 +42,17 @@ const servidor = createServer(async (requisicao, resposta) => {
       catch { enviarJson(500, { erro: "Não foi possível ler o ranking." }); }
       return;
     }
-    if (requisicao.method !== "POST") { resposta.writeHead(405, { Allow: "GET, POST" }).end(); return; }
+    if (requisicao.method !== "POST" && requisicao.method !== "DELETE") {
+      resposta.writeHead(405, { Allow: "GET, POST, DELETE" }).end(); return;
+    }
     const origem = requisicao.headers.origin;
     if (origem && origem !== `http://localhost:${porta}` && origem !== `http://127.0.0.1:${porta}`) {
       enviarJson(403, { erro: "Origem não permitida." }); return;
+    }
+    if (requisicao.method === "DELETE") {
+      try { enviarJson(200, { ranking: await limparRanking() }); }
+      catch { enviarJson(500, { erro: "Não foi possível limpar o ranking." }); }
+      return;
     }
     if (!String(requisicao.headers["content-type"] || "").startsWith("application/json")) {
       enviarJson(415, { erro: "Envie dados em JSON." }); return;

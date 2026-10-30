@@ -1,8 +1,10 @@
 // Controle opcional por movimentos. Alunos que só querem criar fases não precisam editar este arquivo.
+import { criarDetectorMovimento } from "./movimento.js";
+
 export async function iniciarCamera({ video, desenho, aoMudarEstado, aoPular, aoAgachar }) {
   if (!navigator.mediaDevices?.getUserMedia) throw new Error("Câmera indisponível");
   const stream = await navigator.mediaDevices.getUserMedia({
-    video: { width: { ideal: 320 }, height: { ideal: 240 }, frameRate: { ideal: 10, max: 15 }, facingMode: "user" },
+    video: { width: { ideal: 320 }, height: { ideal: 240 }, frameRate: { ideal: 30 }, facingMode: "user" },
     audio: false,
   });
   video.srcObject = stream;
@@ -32,12 +34,7 @@ export async function iniciarCamera({ video, desenho, aoMudarEstado, aoPular, ao
     entrada.width = 256;
     entrada.height = 192;
     const entradaCtx = entrada.getContext("2d", { alpha: false });
-    let calibrando = true;
-    let quadrosCalibrados = 0;
-    let base = null;
-    let quadrosPulo = 0;
-    let quadrosAgachar = 0;
-    let proximoPulo = 0;
+    const detector = criarDetectorMovimento();
     let ativo = true;
     let processando = false;
     let temporizador = 0;
@@ -47,73 +44,34 @@ export async function iniciarCamera({ video, desenho, aoMudarEstado, aoPular, ao
     };
 
     function recalibrar() {
-      calibrando = true;
-      quadrosCalibrados = 0;
-      base = null;
+      detector.recalibrar();
       aoAgachar(false);
-      estado("FIQUE NO CENTRO DA CÂMERA");
+      estado("FIQUE EM PÉ E MOSTRE O TRONCO");
     }
     pose.onResults((resultado) => {
+      if (!ativo) return;
       ctx.clearRect(0, 0, desenho.width, desenho.height);
       const marcas = resultado.poseLandmarks;
-      if (!marcas || marcas.length < 29) {
-        quadrosCalibrados = 0;
-        aoAgachar(false);
-        estado("MOSTRE O CORPO TODO");
-        return;
-      }
-      ctx.strokeStyle = "#f5c542";
-      ctx.lineWidth = 4;
-      for (const [a, b] of [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24], [23, 25], [25, 27], [24, 26], [26, 28]]) {
-        ctx.beginPath();
-        ctx.moveTo(marcas[a].x * desenho.width, marcas[a].y * desenho.height);
-        ctx.lineTo(marcas[b].x * desenho.width, marcas[b].y * desenho.height);
-        ctx.stroke();
-      }
-      const ombros = (marcas[11].y + marcas[12].y) / 2;
-      const quadril = (marcas[23].y + marcas[24].y) / 2;
-      const tornozelos = (marcas[27].y + marcas[28].y) / 2;
-      const visivel = [11, 12, 23, 24, 27, 28].every((i) => (marcas[i].visibility ?? 1) > 0.55);
-      const centro = (marcas[11].x + marcas[12].x) / 2;
-      if (calibrando) {
-        if (visivel && centro > .25 && centro < .75 && tornozelos > .72) {
-          quadrosCalibrados += 1;
-          estado(`CALIBRANDO ${Math.min(100, Math.round(quadrosCalibrados / 24 * 100))}%`);
-          if (quadrosCalibrados >= 24) {
-            base = { ombros, quadril };
-            calibrando = false;
-            estado("CÂMERA PRONTA");
-          }
-        } else {
-          quadrosCalibrados = Math.max(0, quadrosCalibrados - 2);
-          estado(visivel ? "FIQUE NO CENTRO" : "MOSTRE O CORPO TODO");
+      if (marcas) {
+        ctx.strokeStyle = "#f5c542";
+        ctx.lineWidth = 4;
+        for (const [a, b] of [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24]]) {
+          if (!marcas[a] || !marcas[b]) continue;
+          ctx.beginPath();
+          ctx.moveTo(marcas[a].x * desenho.width, marcas[a].y * desenho.height);
+          ctx.lineTo(marcas[b].x * desenho.width, marcas[b].y * desenho.height);
+          ctx.stroke();
         }
-        return;
       }
-      if (!base) return;
-      const alturaCorpo = Math.max(.18, tornozelos - ombros);
-      const pulou = base.quadril - quadril > alturaCorpo * .055;
-      const agachou = ombros - base.ombros > alturaCorpo * .09;
-      quadrosPulo = pulou ? quadrosPulo + 1 : 0;
-      quadrosAgachar = agachou ? quadrosAgachar + 1 : 0;
-      if (quadrosPulo >= 2 && performance.now() > proximoPulo) {
-        aoPular();
-        proximoPulo = performance.now() + 700;
-        quadrosPulo = 0;
-        estado("PULO!");
-      } else if (quadrosAgachar >= 2) {
-        aoAgachar(true);
-        estado("AGACHOU!");
-      } else {
-        aoAgachar(false);
-        estado("CORRENDO");
-      }
-      base.ombros = base.ombros * .985 + ombros * .015;
-      base.quadril = base.quadril * .985 + quadril * .015;
+      const movimento = detector.analisar(marcas, performance.now());
+      if (movimento.pular) aoPular();
+      aoAgachar(movimento.agachar);
+      estado(movimento.estado);
     });
 
     async function processar() {
       if (!ativo) return;
+      const inicio = performance.now();
       if (!processando && !document.hidden && video.readyState >= 2) {
         processando = true;
         try {
@@ -122,7 +80,8 @@ export async function iniciarCamera({ video, desenho, aoMudarEstado, aoPular, ao
         } catch { estado("CÂMERA PAUSADA — TENTE RECALIBRAR"); }
         processando = false;
       }
-      if (ativo) temporizador = setTimeout(processar, 125);
+      // Mantém até 30 análises por segundo, sem o intervalo extra de 125 ms.
+      if (ativo) temporizador = setTimeout(processar, Math.max(0, 33 - (performance.now() - inicio)));
     }
     function parar() {
       if (!ativo) return;
@@ -136,7 +95,7 @@ export async function iniciarCamera({ video, desenho, aoMudarEstado, aoPular, ao
       aoAgachar(false);
       Promise.resolve(pose.close()).catch(() => {});
     }
-    estado("FIQUE NO CENTRO DA CÂMERA");
+    estado("FIQUE EM PÉ E MOSTRE O TRONCO");
     processar();
     window.addEventListener("pagehide", parar);
     return { recalibrar, parar };

@@ -87,6 +87,10 @@ h1 { margin: 0; font: bold clamp(29px, 3.3vw, 46px)/1 Georgia, serif; }
 .ranking-cabecalho { display: flex; justify-content: space-between; align-items: center; }
 .ranking-cabecalho small, .ranking-cabecalho span { color: var(--laranja); font-size: 10px; font-weight: 900; letter-spacing: .12em; }
 .ranking-cabecalho h2 { margin: 5px 0 15px; font: bold 27px Georgia, serif; }
+.ranking-acoes { display: flex; align-items: center; gap: 12px; }
+.ranking-acoes button { padding: 7px 10px; border: 1px solid var(--verde); border-radius: 6px; background: transparent; color: var(--verde); font-size: 10px; font-weight: 700; }
+.ranking-acoes button:hover:not(:disabled) { background: #e6f5ef; }
+.ranking-acoes button:disabled { opacity: .45; cursor: default; }
 .ranking ol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; margin: 0; padding: 0; list-style: none; }
 .ranking li { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 6px 8px; border-bottom: 1px solid #b9bec1; font-size: 12px; }
 .ranking li img, .ranking-avatar { width: 36px; height: 36px; flex: 0 0 36px; border-radius: 50%; object-fit: cover; background: #dde9ef; }
@@ -94,6 +98,7 @@ h1 { margin: 0; font: bold clamp(29px, 3.3vw, 46px)/1 Georgia, serif; }
 .ranking li b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ranking li strong { margin-left: auto; }
 .ranking #aviso-ranking { margin: 12px 0 0; font-size: 11px; }
+.ranking #estado-limpeza-ranking { margin: 6px 0 0; min-height: 14px; font-size: 11px; }
 .palco:has(#tela-final:not(.escondido)) .ferramentas { display: none; }
 
 .tela-contagem, .tela-fase { position: absolute; z-index: 2; inset: 0; display: grid; place-content: center; gap: 12px; background: #173d39b8; color: white; text-align: center; }
@@ -140,6 +145,9 @@ footer strong { color: var(--amarelo); }
 @media (max-width: 640px) {
   .topo { min-height: 58px; }
   .pagina { width: 96vw; margin-top: 20px; }
+  .ranking-cabecalho h2 { font-size: 21px; }
+  .ranking-acoes { gap: 6px; }
+  .ranking-acoes button { padding: 5px; font-size: 9px; }
   .palco { min-height: 0; }
   .cartao { width: 82%; padding: 8px 12px; }
   .etiqueta { padding: 3px 8px; font-size: 8px; }

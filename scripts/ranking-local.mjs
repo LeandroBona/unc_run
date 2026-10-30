@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -45,6 +45,15 @@ export function salvarResultado(dados) {
     await writeFile(temporario, JSON.stringify(ordenado, null, 2));
     await rename(temporario, arquivo);
     return { resultado, ranking: ordenado };
+  });
+  fila = operacao.catch(() => {});
+  return operacao;
+}
+
+export function limparRanking() {
+  const operacao = fila.then(async () => {
+    await rm(arquivo, { force: true });
+    return [];
   });
   fila = operacao.catch(() => {});
   return operacao;
